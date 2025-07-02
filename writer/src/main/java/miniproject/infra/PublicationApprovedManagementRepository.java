@@ -9,5 +9,9 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
     collectionResourceRel = "publicationApprovedManagements",
     path = "publicationApprovedManagements"
 )
+
+
 public interface PublicationApprovedManagementRepository
-    extends PagingAndSortingRepository<PublicationApprovedManagement, Long> {}
+    extends PagingAndSortingRepository<PublicationApprovedManagement, Long> {
+        List<PublicationApprovedManagement> findByBookId(Long bookId);
+    }

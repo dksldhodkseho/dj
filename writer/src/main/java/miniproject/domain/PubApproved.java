@@ -9,11 +9,14 @@ import miniproject.infra.AbstractEvent;
 //<<< DDD / Domain Event
 @Data
 @ToString
+@Getter
 public class PubApproved extends AbstractEvent {
 
     private Long writerId;
     private String approvalStatus;
     private String publishStatus;
+    private Long bookId; //  추가된 필드
+
 
     public PubApproved(Writer aggregate) {
         super(aggregate);

@@ -7,6 +7,7 @@ import miniproject.infra.AbstractEvent;
 
 @Data
 @ToString
+@Getter
 public class PublishRequested extends AbstractEvent {
 
     private Long bookId;
@@ -14,7 +15,5 @@ public class PublishRequested extends AbstractEvent {
     private String content;
     private Long writerId;
     private String coverUrl;
-    private String content;
-    private Long writerId;
-    private String coverUrl;
+
 }

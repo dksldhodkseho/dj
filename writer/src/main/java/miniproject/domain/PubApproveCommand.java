@@ -12,7 +12,5 @@ public class PubApproveCommand {
     private String title;
     private String content;
     private String coverUrl;
-    private String title;
-    private String content;
-    private String coverUrl;
+    
 }
