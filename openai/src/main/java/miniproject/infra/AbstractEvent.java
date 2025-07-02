@@ -51,7 +51,7 @@ public class AbstractEvent {
 
     public void publishAfterCommit() {
         TransactionSynchronizationManager.registerSynchronization(
-            new TransactionSynchronizationAdapter() {
+            new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
                     AbstractEvent.this.publish();
