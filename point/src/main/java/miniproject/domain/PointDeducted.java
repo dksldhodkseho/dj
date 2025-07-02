@@ -9,6 +9,8 @@ import miniproject.infra.AbstractEvent;
 //<<< DDD / Domain Event
 @Data
 @ToString
+@Getter
+@Setter
 public class PointDeducted extends AbstractEvent {
 
     private Long userId;

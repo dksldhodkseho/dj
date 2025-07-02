@@ -44,12 +44,12 @@ public class PointInfoCheckViewHandler {
         try {
             if (!pointDeducted.validate()) return;
             // view 객체 조회
-            Optional<PointInfoCheck> pointInfoCheckOptional = pointInfoCheckRepository.findByUserId(
+            List<PointInfoCheck> pointInfoCheckOptional = pointInfoCheckRepository.findByUserId(
                 pointDeducted.getUserId()
             );
 
-            if (pointInfoCheckOptional.isPresent()) {
-                PointInfoCheck pointInfoCheck = pointInfoCheckOptional.get();
+            if (!pointInfoCheckOptional.isEmpty()) {
+                PointInfoCheck pointInfoCheck = pointInfoCheckOptional.get(0);
                 // view 객체에 이벤트의 eventDirectValue 를 set 함
                 pointInfoCheck.setAmount(
                     pointInfoCheck.getAmount() - pointDeducted.getAmount()
@@ -69,12 +69,12 @@ public class PointInfoCheckViewHandler {
         try {
             if (!pointCharged.validate()) return;
             // view 객체 조회
-            Optional<PointInfoCheck> pointInfoCheckOptional = pointInfoCheckRepository.findByUserId(
+            List<PointInfoCheck> pointInfoCheckOptional = pointInfoCheckRepository.findByUserId(
                 pointCharged.getUserId()
             );
 
-            if (pointInfoCheckOptional.isPresent()) {
-                PointInfoCheck pointInfoCheck = pointInfoCheckOptional.get();
+            if (!pointInfoCheckOptional.isEmpty()) {
+                PointInfoCheck pointInfoCheck = pointInfoCheckOptional.get(0);
                 // view 객체에 이벤트의 eventDirectValue 를 set 함
                 pointInfoCheck.setAmount(
                     pointInfoCheck.getAmount() + pointCharged.getAmount()
@@ -94,12 +94,12 @@ public class PointInfoCheckViewHandler {
         try {
             if (!pointCharged.validate()) return;
             // view 객체 조회
-            Optional<PointInfoCheck> pointInfoCheckOptional = pointInfoCheckRepository.findByUserId(
+            List<PointInfoCheck> pointInfoCheckOptional = pointInfoCheckRepository.findByUserId(
                 pointCharged.getUserId()
             );
 
-            if (pointInfoCheckOptional.isPresent()) {
-                PointInfoCheck pointInfoCheck = pointInfoCheckOptional.get();
+            if (!pointInfoCheckOptional.isEmpty()) {
+                PointInfoCheck pointInfoCheck = pointInfoCheckOptional.get(0);
                 // view 객체에 이벤트의 eventDirectValue 를 set 함
                 pointInfoCheck.setAmount(
                     pointInfoCheck.getAmount() + pointCharged.getAmount()
