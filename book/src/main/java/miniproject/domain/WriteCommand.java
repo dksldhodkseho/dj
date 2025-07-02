@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class WriteCommand {
 
-    private Long bookId;
+    private String writerNickname;
     private String title;
     private String content;
     private Long writerId;

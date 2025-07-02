@@ -43,6 +43,21 @@ public class Book {
     //<<< Clean Arch / Port Method
     public void write(WriteCommand writeCommand) {
         //implement business logic here:
+        // [1] 비즈니스 규칙 검증 (Validation)
+        // 예: 제목은 비어있을 수 없다.
+        if (command.getTitle() == null || command.getTitle().trim().isEmpty()) {
+            throw new IllegalArgumentException("도서의 제목은 필수 항목입니다.");
+        }
+        // 추가적으로 내용 길이 제한, 작가 ID 유효성 검사 등을 추가할 수 있습니다.
+
+
+        // [2] Aggregate 상태 변경 (State Change)
+        // Command 객체에 담겨온 데이터를 현재 Book Aggregate의 필드에 채워 넣습니다.
+        this.setTitle(command.getTitle());
+        this.setContent(command.getContent());
+        this.setWriterId(command.getWriterId());
+        this.setWriterNickname(command.getWriterNickname()); // Command에 닉네임이 있다면 설정
+        this.setStatus("DRAFT"); // 초기 상태를 '초고' 또는 '작성중'으로 설정
 
         Written written = new Written(this);
         written.publishAfterCommit();

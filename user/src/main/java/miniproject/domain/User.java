@@ -13,7 +13,6 @@ import miniproject.UserApplication;
 @Entity
 @Table(name = "User_table")
 @Data
-//<<< DDD / Aggregate Root
 public class User {
 
     @Id
@@ -26,6 +25,16 @@ public class User {
 
     private String passwordHash;
 
+    private Boolean writerRequested;
+    
+    // --- [수정 1] role 필드 추가 ---
+    /**
+     * 사용자의 역할 (예: "USER", "WRITER")
+     * 작가 승인 시 이 필드가 업데이트됩니다.
+     */
+    private String role;
+    // --- 필드 추가 끝 ---
+
     public static UserRepository repository() {
         UserRepository userRepository = UserApplication.applicationContext.getBean(
             UserRepository.class
@@ -33,58 +42,59 @@ public class User {
         return userRepository;
     }
 
-    //<<< Clean Arch / Port Method
     public void register(RegisterCommand registerCommand) {
-        //implement business logic here:
-
+        // 이 메서드는 작가 신청과 무관하므로 그대로 둡니다.
         Registered registered = new Registered(this);
         registered.publishAfterCommit();
     }
 
-    //>>> Clean Arch / Port Method
-    //<<< Clean Arch / Port Method
     public void subscribe(SubscribeCommand subscribeCommand) {
-        //implement business logic here:
-
-        SubscriptionRequested subscriptionRequested = new SubscriptionRequested(
-            this
-        );
+        // 이 메서드는 작가 신청과 무관하므로 그대로 둡니다.
+        SubscriptionRequested subscriptionRequested = new SubscriptionRequested(this);
         subscriptionRequested.publishAfterCommit();
     }
 
-    //>>> Clean Arch / Port Method
-    //<<< Clean Arch / Port Method
     public void writerQuest(WriterQuestCommand writerQuestCommand) {
-        //implement business logic here:
+        // 보내주신 코드가 정확하므로 그대로 유지합니다.
+        // 비즈니스 규칙: 이미 신청한 경우 다시 신청할 수 없음
+        if (this.writerRequested != null && this.writerRequested) {
+            throw new IllegalStateException("이미 작가 신청을 하셨습니다.");
+        }
 
+        // 상태 변경: 작가 신청 상태를 true로 변경
+        this.setWriterRequested(true);
+        
+        // 이벤트 발행
         WriterRequest writerRequest = new WriterRequest(this);
         writerRequest.publishAfterCommit();
     }
 
-    //>>> Clean Arch / Port Method
-    //<<< Clean Arch / Port Method
+    // --- [수정 2] becomeWriter 메서드 추가 ---
+    /**
+     * PolicyHandler에 의해 호출되어 사용자의 역할을 'WRITER'로 승격시키는 메서드
+     */
+    public void becomeWriter() {
+        // 상태 변경: 역할을 'WRITER'로 설정
+        this.setRole("WRITER");
+        // 이 변경사항은 PolicyHandler에서 save()를 통해 DB에 반영됩니다.
+    }
+    // --- 메서드 추가 끝 ---
+
     public void cancelSubscription(
         CancelSubscriptionCommand cancelSubscriptionCommand
     ) {
-        //implement business logic here:
-
+        // 이 메서드는 작가 신청과 무관하므로 그대로 둡니다.
         SubscriptionCancelRequested subscriptionCancelRequested = new SubscriptionCancelRequested(
             this
         );
         subscriptionCancelRequested.publishAfterCommit();
     }
 
-    //>>> Clean Arch / Port Method
-    //<<< Clean Arch / Port Method
     public void chargePoint(ChargePointCommand chargePointCommand) {
-        //implement business logic here:
-
+        // 이 메서드는 작가 신청과 무관하므로 그대로 둡니다.
         PointChargeRequested pointChargeRequested = new PointChargeRequested(
             this
         );
         pointChargeRequested.publishAfterCommit();
     }
-    //>>> Clean Arch / Port Method
-
 }
-//>>> DDD / Aggregate Root
