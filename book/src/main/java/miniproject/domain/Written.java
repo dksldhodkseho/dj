@@ -9,14 +9,14 @@ import miniproject.infra.AbstractEvent;
 //<<< DDD / Domain Event
 @Data
 @ToString
+@Getter
+@Setter
 public class Written extends AbstractEvent {
 
     private Long bookId;
     private String title;
     private String content;
     private Long writerId;
-    private String writerNickname;
-    private String status;
     private String writerNickname;
     private String status;
 

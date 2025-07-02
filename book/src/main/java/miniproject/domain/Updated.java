@@ -16,7 +16,6 @@ public class Updated extends AbstractEvent {
     private String content;
     private Long writerId;
     private String status;
-    private String status;
 
     public Updated(Book aggregate) {
         super(aggregate);

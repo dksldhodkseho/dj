@@ -16,9 +16,6 @@ public class PublishRequested extends AbstractEvent {
     private String content;
     private Long writerId;
     private String coverUrl;
-    private String content;
-    private Long writerId;
-    private String coverUrl;
 
     public PublishRequested(Book aggregate) {
         super(aggregate);
