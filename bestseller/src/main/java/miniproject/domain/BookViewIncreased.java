@@ -9,6 +9,7 @@ import miniproject.infra.AbstractEvent;
 //<<< DDD / Domain Event
 @Data
 @ToString
+@Getter
 public class BookViewIncreased extends AbstractEvent {
 
     private Long bookId;

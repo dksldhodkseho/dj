@@ -9,16 +9,14 @@ import miniproject.infra.AbstractEvent;
 //<<< DDD / Domain Event
 @Data
 @ToString
+@Getter
+@Setter
 public class BestsellerSelected extends AbstractEvent {
 
     private Long bestsellerId;
     private String bookId;
     private Integer viewCount;
     private String selectedStatus;
-    private Date selectedAt;
-    private String title;
-    private String coverUrl;
-    private Long writerId;
     private Date selectedAt;
     private String title;
     private String coverUrl;
@@ -31,5 +29,6 @@ public class BestsellerSelected extends AbstractEvent {
     public BestsellerSelected() {
         super();
     }
+
 }
 //>>> DDD / Domain Event
