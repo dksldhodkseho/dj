@@ -2,13 +2,14 @@ package miniproject.infra;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import miniproject.config.kafka.KafkaProcessor;
 import miniproject.domain.*;
+import miniproject.domain.SubscriptionStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class SubscriptionStatusCheckViewHandler {
@@ -30,7 +31,7 @@ public class SubscriptionStatusCheckViewHandler {
             subscriptionStatusCheck.setUserId(
                 subscriptionRegistered.getUserId()
             );
-            subscriptionStatusCheck.setSubscriptionStatus(ACTIVE);
+            subscriptionStatusCheck.setSubscriptionStatus(SubscriptionStatus.ACTIVE.name()); // 🔧 수정
             subscriptionStatusCheck.setSubscriptionExpireDate(
                 String.valueOf(
                     subscriptionRegistered.getSubscriptionExpiryDate()
@@ -50,14 +51,15 @@ public class SubscriptionStatusCheckViewHandler {
         try {
             if (!subscriptionCanceled.validate()) return;
             // view 객체 조회
-            Optional<SubscriptionStatusCheck> subscriptionStatusCheckOptional = subscriptionStatusCheckRepository.findByUserId(
-                subscriptionCanceled.getUserId()
-            );
+            List<SubscriptionStatusCheck> subscriptionStatusChecks =
+                subscriptionStatusCheckRepository.findByUserId(
+                    subscriptionCanceled.getUserId()
+                ); // 🔧 수정
 
-            if (subscriptionStatusCheckOptional.isPresent()) {
-                SubscriptionStatusCheck subscriptionStatusCheck = subscriptionStatusCheckOptional.get();
+            if (!subscriptionStatusChecks.isEmpty()) { // 🔧 수정
+                SubscriptionStatusCheck subscriptionStatusCheck = subscriptionStatusChecks.get(0); // 🔧 수정
                 // view 객체에 이벤트의 eventDirectValue 를 set 함
-                subscriptionStatusCheck.setSubscriptionStatus(CANCELLED);
+                subscriptionStatusCheck.setSubscriptionStatus(SubscriptionStatus.CANCELLED.name()); // 🔧 수정
                 // view 레파지 토리에 save
                 subscriptionStatusCheckRepository.save(subscriptionStatusCheck);
             }

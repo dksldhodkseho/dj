@@ -10,4 +10,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
     path = "subscriptionStatusChecks"
 )
 public interface SubscriptionStatusCheckRepository
-    extends PagingAndSortingRepository<SubscriptionStatusCheck, Long> {}
+    extends PagingAndSortingRepository<SubscriptionStatusCheck, Long> {
+        List<SubscriptionStatusCheck> findByUserId(Long userId);
+    }

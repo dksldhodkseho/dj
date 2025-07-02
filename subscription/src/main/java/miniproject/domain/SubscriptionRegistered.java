@@ -9,6 +9,7 @@ import miniproject.infra.AbstractEvent;
 //<<< DDD / Domain Event
 @Data
 @ToString
+@Getter
 public class SubscriptionRegistered extends AbstractEvent {
 
     private Long userId;
