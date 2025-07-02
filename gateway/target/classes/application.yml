@@ -1,0 +1,108 @@
+server:
+  port: 8088
+
+---
+
+spring:
+  profiles: default
+  cloud:
+    gateway:
+#<<< API Gateway / Routes
+      routes:
+        - id: book
+          uri: http://localhost:8082
+          predicates:
+            - Path=/books/**, /bookDetailInfos/**, /bookLists/**
+        - id: writer
+          uri: http://localhost:8083
+          predicates:
+            - Path=/writers/**, /publicationApprovedManagements/**
+        - id: user
+          uri: http://localhost:8084
+          predicates:
+            - Path=/users/**, /userInfoLists/**
+        - id: subscription
+          uri: http://localhost:8085
+          predicates:
+            - Path=/subscriptions/**, /subscriptionStatusChecks/**
+        - id: bestseller
+          uri: http://localhost:8086
+          predicates:
+            - Path=/bestSellers/**, /bestSellerLists/**
+        - id: openai
+          uri: http://localhost:8087
+          predicates:
+            - Path=/openAis/**, 
+        - id: point
+          uri: http://localhost:8088
+          predicates:
+            - Path=/points/**, /pointInfoChecks/**
+        - id: frontend
+          uri: http://localhost:8080
+          predicates:
+            - Path=/**
+#>>> API Gateway / Routes
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
+
+---
+
+spring:
+  profiles: docker
+  cloud:
+    gateway:
+      routes:
+        - id: book
+          uri: http://book:8080
+          predicates:
+            - Path=/books/**, 
+        - id: writer
+          uri: http://writer:8080
+          predicates:
+            - Path=/writers/**, 
+        - id: user
+          uri: http://user:8080
+          predicates:
+            - Path=/users/**, 
+        - id: subscription
+          uri: http://subscription:8080
+          predicates:
+            - Path=/subscriptions/**, 
+        - id: bestseller
+          uri: http://bestseller:8080
+          predicates:
+            - Path=/bestSellers/**, 
+        - id: openai
+          uri: http://openai:8080
+          predicates:
+            - Path=/openAis/**, 
+        - id: point
+          uri: http://point:8080
+          predicates:
+            - Path=/points/**, 
+        - id: frontend
+          uri: http://frontend:8080
+          predicates:
+            - Path=/**
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
+server:
+  port: 8080
