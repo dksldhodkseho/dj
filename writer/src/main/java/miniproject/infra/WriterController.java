@@ -13,99 +13,54 @@ import org.springframework.web.bind.annotation.RestController;
 //<<< Clean Arch / Inbound Adaptor
 
 @RestController
-// @RequestMapping(value="/writers")
+equestMapping(value="/writers")
 @Transactional
 public class WriterController {
 
     @Autowired
-    WriterRepository writerRepository;
+    WriterService writerService; // Repository 대신 Service를 주입합니다.
 
-    @RequestMapping(
-        value = "/writers/{id}/writerapprove",
-        method = RequestMethod.PUT,
-        produces = "application/json;charset=UTF-8"
-    )
-    public Writer writerApprove(
-        @PathVariable(value = "id") Long id,
-        @RequestBody WriterApproveCommand writerApproveCommand,
-        HttpServletRequest request,
-        HttpServletResponse response
-    ) throws Exception {
-        System.out.println("##### /writer/writerApprove  called #####");
-        Optional<Writer> optionalWriter = writerRepository.findById(id);
-
-        optionalWriter.orElseThrow(() -> new Exception("No Entity Found"));
-        Writer writer = optionalWriter.get();
-        writer.writerApprove(writerApproveCommand);
-
-        writerRepository.save(writer);
-        return writer;
+    /**
+     * 작가 가입 신청 API
+     * @param command 가입 정보를 담은 Request Body
+     */
+    @PostMapping("/register")
+    public ResponseEntity<Writer> registerWriter(@RequestBody WriterRegisterCommand command) throws Exception {
+        System.out.println("##### /writers/register called #####");
+        
+        // Controller는 요청을 받아 Service에 전달하는 역할만 합니다.
+        Writer savedWriter = writerService.registerWriter(command);
+        
+        // 성공적으로 처리되었음을 알리고, 생성된 writer 정보를 응답합니다.
+        return ResponseEntity.ok(savedWriter);
     }
 
-    @RequestMapping(
-        value = "/writers/{id}/writerreject",
-        method = RequestMethod.PUT,
-        produces = "application/json;charset=UTF-8"
-    )
-    public Writer writerReject(
-        @PathVariable(value = "id") Long id,
-        @RequestBody WriterRejectCommand writerRejectCommand,
-        HttpServletRequest request,
-        HttpServletResponse response
-    ) throws Exception {
-        System.out.println("##### /writer/writerReject  called #####");
-        Optional<Writer> optionalWriter = writerRepository.findById(id);
-
-        optionalWriter.orElseThrow(() -> new Exception("No Entity Found"));
-        Writer writer = optionalWriter.get();
-        writer.writerReject(writerRejectCommand);
-
-        writerRepository.save(writer);
-        return writer;
+    @PutMapping(value = "/{id}/writerapprove")
+    public ResponseEntity<Void> writerApprove(@PathVariable(value = "id") Long id) throws Exception {
+        System.out.println("##### /writers/" + id + "/writerapprove called #####");
+        writerService.approveWriter(id);
+        return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(
-        value = "/writers/{id}/pubapprove",
-        method = RequestMethod.PUT,
-        produces = "application/json;charset=UTF-8"
-    )
-    public Writer pubApprove(
-        @PathVariable(value = "id") Long id,
-        @RequestBody PubApproveCommand pubApproveCommand,
-        HttpServletRequest request,
-        HttpServletResponse response
-    ) throws Exception {
-        System.out.println("##### /writer/pubApprove  called #####");
-        Optional<Writer> optionalWriter = writerRepository.findById(id);
-
-        optionalWriter.orElseThrow(() -> new Exception("No Entity Found"));
-        Writer writer = optionalWriter.get();
-        writer.pubApprove(pubApproveCommand);
-
-        writerRepository.save(writer);
-        return writer;
+    @PutMapping(value = "/{id}/writerreject")
+    public ResponseEntity<Void> writerReject(@PathVariable(value = "id") Long id) throws Exception {
+        System.out.println("##### /writers/" + id + "/writerreject called #####");
+        writerService.rejectWriter(id);
+        return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(
-        value = "/writers/{id}/pubreject",
-        method = RequestMethod.PUT,
-        produces = "application/json;charset=UTF-8"
-    )
-    public Writer pubReject(
-        @PathVariable(value = "id") Long id,
-        @RequestBody PubRejectCommand pubRejectCommand,
-        HttpServletRequest request,
-        HttpServletResponse response
-    ) throws Exception {
-        System.out.println("##### /writer/pubReject  called #####");
-        Optional<Writer> optionalWriter = writerRepository.findById(id);
+    @PutMapping(value = "/{id}/pubapprove")
+    public ResponseEntity<Void> pubApprove(@PathVariable(value = "id") Long id, @RequestBody PubApproveCommand command) throws Exception {
+        System.out.println("##### /writers/" + id + "/pubapprove called #####");
+        writerService.approvePublication(id, command);
+        return ResponseEntity.ok().build();
+    }
 
-        optionalWriter.orElseThrow(() -> new Exception("No Entity Found"));
-        Writer writer = optionalWriter.get();
-        writer.pubReject(pubRejectCommand);
-
-        writerRepository.save(writer);
-        return writer;
+    @PutMapping(value = "/{id}/pubreject")
+    public ResponseEntity<Void> pubReject(@PathVariable(value = "id") Long id, @RequestBody PubRejectCommand command) throws Exception {
+        System.out.println("##### /writers/" + id + "/pubreject called #####");
+        writerService.rejectPublication(id, command);
+        return ResponseEntity.ok().build();
     }
 }
 //>>> Clean Arch / Inbound Adaptor

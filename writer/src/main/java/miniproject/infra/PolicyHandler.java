@@ -17,82 +17,79 @@ import org.springframework.stereotype.Service;
 @Transactional
 public class PolicyHandler {
 
-    // Writer Aggregate를 직접 다룰 일은 현재 Policy에 없으므로 WriterRepository는 제거하거나 그대로 두셔도 됩니다.
     @Autowired
-    WriterRepository writerRepository; 
+    WriterRepository writerRepository;
 
-    // '작가 승인 관리' View를 저장하기 위한 Repository를 추가합니다.
     @Autowired
     WriterApprovalManagementRepository writerApprovalManagementRepository;
 
-    // '출간 승인 관리' View를 저장하기 위한 Repository를 추가합니다.
     @Autowired
     PublicationApprovedManagementRepository publicationApprovedManagementRepository;
 
-
     @StreamListener(KafkaProcessor.INPUT)
-    public void whatever(@Payload String eventString) {}
-
+    public void whatever(@Payload String eventString) {
+        // 모든 이벤트를 로깅하거나 디버깅할 때 사용할 수 있는 기본 리스너입니다.
+    }
 
     /**
-     * user 서비스에서 작가 신청(WriterRequest) 이벤트가 발생했을 때 리스너
-     * @param writerRequest
+     * [이벤트 수신] User 서비스에서 WriterRequest 이벤트 발생 시
+     * WriterApprovalManagement View에 승인 대기 건을 생성합니다.
      */
     @StreamListener(
         value = KafkaProcessor.INPUT,
         condition = "headers['type']=='WriterRequest'"
     )
-    public void wheneverWriterRequest_WriterRequest(
+    public void wheneverWriterRequest_CreateApprovalView(
         @Payload WriterRequest writerRequest
     ) {
-        // 이벤트 수신 로그
+        // 이벤트 유효성 검사
+        if (!writerRequest.validate()) return;
+        
         System.out.println(
-            "\n\n##### listener WriterRequest : " + writerRequest + "\n\n"
+            "\n\n##### listener WriterRequest -> CreateApprovalView : " +
+            writerRequest.toJson() +
+            "\n\n"
         );
 
-        // --- 로직 구현 --- //
-        // 1. 새로운 '작가 승인 관리' View 객체를 생성합니다.
+        // '작가 승인 관리'를 위한 View 데이터를 생성합니다.
         WriterApprovalManagement approvalView = new WriterApprovalManagement();
-
-        // 2. 이벤트로 전달받은 데이터를 View 객체에 설정합니다.
-        // writerRequest 이벤트는 userId를 가지고 있습니다. 이것이 작가 ID가 됩니다.
         approvalView.setWriterId(writerRequest.getUserId());
-        approvalView.setApprovalStatus("PENDING"); // 초기 상태는 '승인 대기'
+        approvalView.setApprovalStatus("PENDING"); // 초기 상태: 승인 대기
 
-        // 3. Repository를 통해 View 데이터를 DB에 저장합니다.
+        // 생성된 View 데이터를 DB에 저장합니다.
         writerApprovalManagementRepository.save(approvalView);
     }
 
-
     /**
-     * book 서비스에서 출간 요청(PublishRequested) 이벤트가 발생했을 때 리스너
-     * @param publishRequested
+     * [이벤트 수신] Book 서비스에서 PublishRequested 이벤트 발생 시
+     * PublicationApprovedManagement View에 출간 승인 대기 건을 생성합니다.
      */
     @StreamListener(
         value = KafkaProcessor.INPUT,
         condition = "headers['type']=='PublishRequested'"
     )
-    public void wheneverPublishRequested_PublishRequest(
+    public void wheneverPublishRequested_CreatePublicationApprovalView(
         @Payload PublishRequested publishRequested
     ) {
-        // 이벤트 수신 로그
+        // 이벤트 유효성 검사
+        if (!publishRequested.validate()) return;
+
         System.out.println(
-            "\n\n##### listener PublishRequest : " + publishRequested + "\n\n"
+            "\n\n##### listener PublishRequested -> CreatePublicationApprovalView : " +
+            publishRequested.toJson() +
+            "\n\n"
         );
 
-        // --- 로직 구현 --- //
-        // 1. 새로운 '출간 승인 관리' View 객체를 생성합니다.
+        // '출간 승인 관리'를 위한 View 데이터를 생성합니다.
         PublicationApprovedManagement publicationView = new PublicationApprovedManagement();
-        
-        // 2. 이벤트로 전달받은 데이터를 View 객체에 설정합니다.
         publicationView.setBookId(publishRequested.getBookId());
         publicationView.setTitle(publishRequested.getTitle());
         publicationView.setWriterId(publishRequested.getWriterId());
         publicationView.setContent(publishRequested.getContent());
         publicationView.setCoverUrl(publishRequested.getCoverUrl());
-        publicationView.setPublishStatus("PENDING"); // 초기 상태는 '승인 대기'
+        publicationView.setPublishStatus("PENDING"); // 초기 상태: 승인 대기
 
-        // 3. Repository를 통해 View 데이터를 DB에 저장합니다.
+        // 생성된 View 데이터를 DB에 저장합니다.
         publicationApprovedManagementRepository.save(publicationView);
     }
 }

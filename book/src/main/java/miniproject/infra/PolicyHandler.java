@@ -30,13 +30,28 @@ public class PolicyHandler {
     public void wheneverPubApproved_PublishComplete(
         @Payload PubApproved pubApproved
     ) {
-        PubApproved event = pubApproved;
-        System.out.println(
-            "\n\n##### listener PublishComplete : " + pubApproved + "\n\n"
-        );
+        try {
+            if (!pubApproved.validate()) return;
 
-        // Sample Logic //
-        Book.publishComplete(event);
+            System.out.println(
+                "\n\n##### listener PubApproved -> PublishComplete : " +
+                pubApproved.toJson() +
+                "\n\n"
+            );
+
+            // 1. 이벤트에 담겨온 bookId로 Book Aggregate를 조회합니다.
+            bookRepository.findById(pubApproved.getBookId()).ifPresent(book -> {
+                
+                // 2. Book Aggregate에 만들어둔 publishComplete() 메서드를 호출합니다.
+                book.publishComplete();
+                
+                // 3. 변경된 상태를 DB에 저장합니다. (이때 PublishCompleted 이벤트가 발행됩니다)
+                bookRepository.save(book);
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @StreamListener(
@@ -54,5 +69,7 @@ public class PolicyHandler {
         // Sample Logic //
         Book.coverCandidatesReady(event);
     }
+
+    
 }
 //>>> Clean Arch / Inbound Adaptor

@@ -22,15 +22,10 @@ public class Book {
     private Long bookId;
 
     private String title;
-
     private String content;
-
     private String writerNickname;
-
     private Long writerId;
-
     private String coverUrl;
-
     private String status;
 
     public static BookRepository repository() {
@@ -40,146 +35,88 @@ public class Book {
         return bookRepository;
     }
 
-    //<<< Clean Arch / Port Method
     public void write(WriteCommand writeCommand) {
-        //implement business logic here:
-        // [1] 비즈니스 규칙 검증 (Validation)
-        // 예: 제목은 비어있을 수 없다.
-        if (command.getTitle() == null || command.getTitle().trim().isEmpty()) {
+        // [수정] 파라미터 변수명을 writeCommand로 통일
+        if (writeCommand.getTitle() == null || writeCommand.getTitle().trim().isEmpty()) {
             throw new IllegalArgumentException("도서의 제목은 필수 항목입니다.");
         }
-        // 추가적으로 내용 길이 제한, 작가 ID 유효성 검사 등을 추가할 수 있습니다.
-
-
-        // [2] Aggregate 상태 변경 (State Change)
-        // Command 객체에 담겨온 데이터를 현재 Book Aggregate의 필드에 채워 넣습니다.
-        this.setTitle(command.getTitle());
-        this.setContent(command.getContent());
-        this.setWriterId(command.getWriterId());
-        this.setWriterNickname(command.getWriterNickname()); // Command에 닉네임이 있다면 설정
-        this.setStatus("DRAFT"); // 초기 상태를 '초고' 또는 '작성중'으로 설정
+        
+        this.setTitle(writeCommand.getTitle());
+        this.setContent(writeCommand.getContent());
+        this.setWriterId(writeCommand.getWriterId());
+        this.setWriterNickname(writeCommand.getWriterNickname());
+        this.setStatus("DRAFT");
 
         Written written = new Written(this);
         written.publishAfterCommit();
     }
 
-    //>>> Clean Arch / Port Method
-    //<<< Clean Arch / Port Method
     public void delete(DeleteCommand deleteCommand) {
-        //implement business logic here:
-
+        // 다른 기능 구현 시 이 부분에 로직을 추가하면 됩니다.
         Deleted deleted = new Deleted(this);
         deleted.publishAfterCommit();
     }
+    
+    // --- [수정] publishRequest 메서드에 로직 추가 ---
+    /**
+     * '출간 요청'을 처리하는 핵심 비즈니스 로직
+     */
+    public void publishRequest() { // Command 객체가 필요 없으므로 파라미터 제거
+        // 1. 비즈니스 규칙 검증: 이미 요청했거나 출간된 책은 요청 불가
+        if ("PUBLISH_REQUESTED".equals(this.status) || "PUBLISHED".equals(this.status)) {
+            throw new IllegalStateException("이미 출간 요청되었거나 완료된 도서입니다.");
+        }
+        
+        // 2. 상태 변경: 이 Book 객체의 상태를 "PUBLISH_REQUESTED"로 변경
+        this.setStatus("PUBLISH_REQUESTED");
 
-    //>>> Clean Arch / Port Method
-    //<<< Clean Arch / Port Method
-    public void publishRequest(PublishRequestCommand publishRequestCommand) {
-        //implement business logic here:
-
+        // 3. 이벤트 발행
         PublishRequested publishRequested = new PublishRequested(this);
         publishRequested.publishAfterCommit();
     }
+    // --- 로직 추가 끝 ---
 
-    //>>> Clean Arch / Port Method
-    //<<< Clean Arch / Port Method
     public void viewBook(ViewBookCommand viewBookCommand) {
-        //implement business logic here:
-
         BookViewed bookViewed = new BookViewed(this);
         bookViewed.publishAfterCommit();
     }
 
-    //>>> Clean Arch / Port Method
-    //<<< Clean Arch / Port Method
     public void selectBookCover(SelectBookCoverCommand selectBookCoverCommand) {
-        //implement business logic here:
-
         BookCoverSelected bookCoverSelected = new BookCoverSelected(this);
         bookCoverSelected.publishAfterCommit();
     }
 
-    //>>> Clean Arch / Port Method
-    //<<< Clean Arch / Port Method
     public void requestCoverGeneration(
         RequestCoverGenerationCommand requestCoverGenerationCommand
     ) {
-        //implement business logic here:
-
         CoverGenerationRequested coverGenerationRequested = new CoverGenerationRequested(
             this
         );
         coverGenerationRequested.publishAfterCommit();
     }
 
-    //>>> Clean Arch / Port Method
-    //<<< Clean Arch / Port Method
     public void update(UpdateCommand updateCommand) {
-        //implement business logic here:
-
         Updated updated = new Updated(this);
         updated.publishAfterCommit();
     }
 
-    //>>> Clean Arch / Port Method
+    // --- [수정] publishComplete 메서드 수정 ---
+    /**
+     * PolicyHandler에 의해 호출되어 최종 출간을 완료 처리하는 메서드
+     */
+    public void publishComplete() { // static 제거, 파라미터 제거
+        // 1. 상태를 'PUBLISHED'(출간 완료)로 변경합니다.
+        this.setStatus("PUBLISHED");
 
-    //<<< Clean Arch / Port Method
-    public static void publishComplete(PubApproved pubApproved) {
-        //implement business logic here:
-
-        /** Example 1:  new item 
-        Book book = new Book();
-        repository().save(book);
-
-        PublishCompleted publishCompleted = new PublishCompleted(book);
+        // 2. 'PublishCompleted'(출간 완료됨) 이벤트를 발행하여 View 등에 최종 상태를 알립니다.
+        PublishCompleted publishCompleted = new PublishCompleted(this);
         publishCompleted.publishAfterCommit();
-        */
-
-        /** Example 2:  finding and process
-        
-
-        repository().findById(pubApproved.get???()).ifPresent(book->{
-            
-            book // do something
-            repository().save(book);
-
-            PublishCompleted publishCompleted = new PublishCompleted(book);
-            publishCompleted.publishAfterCommit();
-
-         });
-        */
-
     }
+    // --- 메서드 수정 끝 ---
 
-    //>>> Clean Arch / Port Method
-    //<<< Clean Arch / Port Method
+
     public static void coverCandidatesReady(CoverCreated coverCreated) {
-        //implement business logic here:
-
-        /** Example 1:  new item 
-        Book book = new Book();
-        repository().save(book);
-
-        */
-
-        /** Example 2:  finding and process
-        
-        // if coverCreated.genAiId exists, use it
-        
-        // ObjectMapper mapper = new ObjectMapper();
-        // Map<, Object> openAiMap = mapper.convertValue(coverCreated.getGenAiId(), Map.class);
-
-        repository().findById(coverCreated.get???()).ifPresent(book->{
-            
-            book // do something
-            repository().save(book);
-
-
-         });
-        */
-
+        // 이 부분은 다른 기능 구현 시 수정합니다.
     }
-    //>>> Clean Arch / Port Method
-
 }
 //>>> DDD / Aggregate Root

@@ -46,6 +46,15 @@ public class User {
         // 이 메서드는 작가 신청과 무관하므로 그대로 둡니다.
         Registered registered = new Registered(this);
         registered.publishAfterCommit();
+        this.setEmail(registerCommand.getEmail());
+        this.setNickname(registerCommand.getNickname());
+        this.setPasswordHash(passwordEncoder.encode(registerCommand.getPassword())); // 비밀번호 암호화
+
+        // *** 여기에 역할(Role) 초기값 설정 로직 추가 ***
+        this.setRole("USER"); 
+
+        Registered registered = new Registered(this);
+        registered.publishAfterCommit();
     }
 
     public void subscribe(SubscribeCommand subscribeCommand) {
