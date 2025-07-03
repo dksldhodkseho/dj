@@ -58,14 +58,23 @@ public class Point {
 
     //>>> Clean Arch / Port Method
     //<<< Clean Arch / Port Method
-    public void chargePoint(ChargePointCommand chargePointCommand) {
-        //implement business logic here:
-
-        PointCharged pointCharged = new PointCharged(this);
-        pointCharged.publishAfterCommit();
-        PointChargeFailed pointChargeFailed = new PointChargeFailed(this);
-        pointChargeFailed.publishAfterCommit();
+    /**
+ * 포인트를 충전하는 비즈니스 로직
+ * @param chargePointCommand 충전할 포인트 양(amount)을 포함한 커맨드 객체
+ */
+public void chargePoint(ChargePointCommand chargePointCommand) {
+    
+    // [1] 상태 변경: 기존 포인트(this.getAmount())에 충전할 포인트(chargePointCommand.getAmount())를 더합니다.
+    // 만약 기존 포인트가 null이면 0으로 시작합니다.
+    if (this.getAmount() == null) {
+        this.setAmount(0);
     }
+    this.setAmount(this.getAmount() + chargePointCommand.getAmount());
+
+    // [2] 이벤트 발행: '포인트가 성공적으로 충전되었다'는 의미의 PointCharged 이벤트만 발행합니다.
+    PointCharged pointCharged = new PointCharged(this);
+    pointCharged.publishAfterCommit();
+}
 
     //>>> Clean Arch / Port Method
 

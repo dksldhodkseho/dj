@@ -42,7 +42,7 @@ public class WriterController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping(value = "/{id}/writerreject")
+    @PutMapping("/{id}/writerreject")
     public ResponseEntity<Void> writerReject(@PathVariable(value = "id") Long id) throws Exception {
         System.out.println("##### /writers/" + id + "/writerreject called #####");
         writerService.rejectWriter(id);
@@ -56,8 +56,11 @@ public class WriterController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping(value = "/{id}/pubreject")
-    public ResponseEntity<Void> pubReject(@PathVariable(value = "id") Long id, @RequestBody PubRejectCommand command) throws Exception {
+    @PutMapping("/{id}/pubreject")
+    public ResponseEntity<Void> pubReject(
+        @PathVariable(value = "id") Long id,
+        @RequestBody PubRejectCommand command
+    ) throws Exception {
         System.out.println("##### /writers/" + id + "/pubreject called #####");
         writerService.rejectPublication(id, command);
         return ResponseEntity.ok().build();

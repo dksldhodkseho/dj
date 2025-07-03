@@ -12,6 +12,7 @@ import miniproject.infra.AbstractEvent;
 @Getter
 public class SubscriptionCanceled extends AbstractEvent {
 
+    private Long id;
     private Long userId;
     private String subscriptionStatus;
 

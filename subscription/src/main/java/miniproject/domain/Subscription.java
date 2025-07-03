@@ -18,10 +18,9 @@ public class Subscription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
     private Long userId;
-
     private String subscriptionStatus;
-
     private Date subscriptionExpiryDate;
 
     public static SubscriptionRepository repository() {
@@ -145,6 +144,31 @@ public class Subscription {
          });
         */
 
+    }
+
+     @PostPersist
+    public void onPostPersist() {
+        // 구독이 생성될 때 SubscriptionCreated 이벤트를 발행할 수 있습니다.
+        SubscriptionCreated subscriptionCreated = new SubscriptionCreated(this);
+        subscriptionCreated.publishAfterCommit();
+    }
+
+    // --- [추가] 구독을 취소하는 비즈니스 로직 ---
+    /**
+     * PolicyHandler에 의해 호출되어 구독을 취소 처리하는 메서드
+     */
+    public void cancel() {
+        // 1. 비즈니스 규칙: 이미 취소된 구독인지 확인
+        if ("CANCELED".equals(this.getSubscriptionStatus())) {
+            throw new IllegalStateException("이미 취소된 구독입니다.");
+        }
+
+        // 2. 상태 변경: 구독 상태를 "CANCELED"로 변경
+        this.setSubscriptionStatus("CANCELED");
+
+        // 3. 'SubscriptionCanceled' 이벤트를 발행하여 다른 서비스에 알림
+        SubscriptionCanceled subscriptionCanceled = new SubscriptionCanceled(this);
+        subscriptionCanceled.publishAfterCommit();
     }
     //>>> Clean Arch / Port Method
 

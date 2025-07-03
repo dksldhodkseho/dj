@@ -53,9 +53,10 @@ public class WriterService {
      */
     public void rejectWriter(Long writerId) throws Exception {
         writerRepository.findById(writerId).ifPresent(writer -> {
-            writer.writerReject(); // Command 객체 없이 호출하도록 수정
+            writer.writerReject();
             writerRepository.save(writer);
         });
+    }
     }
 
     /**

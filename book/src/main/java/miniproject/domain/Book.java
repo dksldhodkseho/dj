@@ -98,6 +98,15 @@ public class Book {
         coverGenerationRequested.publishAfterCommit();
     }
 
+     public void updateCoverUrl(String coverUrl) {
+        this.setCoverUrl(coverUrl);
+        
+        // 여기서 BookCoverUpdated 같은 별도 이벤트를 발행하여
+        // View(bookDetailInfo) 등에 표지가 업데이트되었음을 알릴 수 있습니다.
+        BookCoverUpdated bookCoverUpdated = new BookCoverUpdated(this);
+        bookCoverUpdated.publishAfterCommit();
+    }
+
     public void update(UpdateCommand updateCommand) {
         Updated updated = new Updated(this);
         updated.publishAfterCommit();
@@ -132,6 +141,14 @@ public class Book {
         // 이 이벤트는 ViewHandler가 받아 CQRS 뷰를 업데이트하는 데 사용됩니다.
         BookViewed bookViewed = new BookViewed(this);
         bookViewed.publishAfterCommit();
+    }
+
+    /**
+     * 출간 거절 시, 상태를 다시 'DRAFT'로 되돌리는 메서드
+     */
+    public void revertToDraft() {
+        // 상태를 'DRAFT'로 변경하여 작가가 다시 수정하고 재요청할 수 있도록 합니다.
+        this.setStatus("DRAFT");
     }
 }
 //>>> DDD / Aggregate Root

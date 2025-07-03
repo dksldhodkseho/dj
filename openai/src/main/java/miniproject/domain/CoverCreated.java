@@ -11,6 +11,7 @@ import miniproject.infra.AbstractEvent;
 @ToString
 public class CoverCreated extends AbstractEvent {
 
+    private Long id;
     private Long requestId;
     private Long bookId;
     private String prompt;

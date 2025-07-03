@@ -50,9 +50,16 @@ public class Writer {
 
     //>>> Clean Arch / Port Method
     //<<< Clean Arch / Port Method
-    public void writerReject(WriterRejectCommand writerRejectCommand) {
-        //implement business logic here:
+    public void writerReject() {
+        // 비즈니스 규칙: 이미 처리된 건은 아닌지 확인
+        if (!"PENDING".equals(this.getApprovalStatus())) {
+            throw new IllegalStateException("이미 처리된 신청 건입니다.");
+        }
 
+        // 상태 변경: 승인 상태를 "REJECTED"로 변경
+        this.setApprovalStatus("REJECTED");
+
+        // 이벤트 발행: 'WriterRejected' 이벤트를 발행
         WriterRejected writerRejected = new WriterRejected(this);
         writerRejected.publishAfterCommit();
     }
@@ -75,10 +82,17 @@ public class Writer {
 
     //>>> Clean Arch / Port Method
     //<<< Clean Arch / Port Method
-    public void pubReject(PubRejectCommand pubRejectCommand) {
-        //implement business logic here:
+    /**
+     * '출간 거절(PubReject)' 커맨드를 처리하는 비즈니스 로직
+     */
+    public void pubReject(PubRejectCommand command) {
+        // [1] 상태 변경 (시나리오에 따라 필요시 추가)
+        this.setPublishStatus("REJECTED");
 
+        // [2] 'PubRejected'(출간 거절됨) 이벤트를 발행합니다.
+        //    어떤 책이 거절되었는지 알려주기 위해 bookId를 이벤트에 담아줍니다.
         PubRejected pubRejected = new PubRejected(this);
+        pubRejected.setBookId(command.getBookId());
         pubRejected.publishAfterCommit();
     }
 

@@ -57,5 +57,25 @@ public class PolicyHandler {
             e.printStackTrace();
         }
     }
+
+     // --- 여기에 '작가 거절됨' 이벤트 리스너를 추가합니다 ---
+    @StreamListener(
+        value = KafkaProcessor.INPUT,
+        condition = "headers['type']=='WriterRejected'"
+    )
+    public void wheneverWriterRejected_NotifyUser(@Payload WriterRejected writerRejected) {
+        if (!writerRejected.validate()) return;
+        
+        System.out.println(
+            "\n\n##### listener NotifyUserOfRejection : " + writerRejected.toJson() + "\n\n"
+        );
+        
+        // 여기에 사용자에게 "작가 신청이 거절되었습니다."라고 알리는 로직을 구현합니다.
+        // 예를 들어, 알림 서비스로 이벤트를 보내거나, 사용자의 상태를 변경할 수 있습니다.
+        // 현재는 콘솔에 로그만 출력합니다.
+        userRepository.findById(writerRejected.getWriterId()).ifPresent(user -> {
+            System.out.println("알림 발송 to " + user.getNickname() + ": 작가 신청이 거절되었습니다.");
+        });
+    }
 }
 //>>> Clean Arch / Inbound Adaptor

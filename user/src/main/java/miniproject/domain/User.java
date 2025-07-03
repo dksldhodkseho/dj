@@ -89,21 +89,16 @@ public class User {
     }
     // --- 메서드 추가 끝 ---
 
-    public void cancelSubscription(
-        CancelSubscriptionCommand cancelSubscriptionCommand
-    ) {
-        // 이 메서드는 작가 신청과 무관하므로 그대로 둡니다.
-        SubscriptionCancelRequested subscriptionCancelRequested = new SubscriptionCancelRequested(
-            this
-        );
+    public void cancelSubscription(CancelSubscriptionCommand cancelSubscriptionCommand) {
+        // "이 사용자가 구독을 취소하려고 합니다" 라는 요청 이벤트를 발행합니다.
+        SubscriptionCancelRequested subscriptionCancelRequested = new SubscriptionCancelRequested(this);
         subscriptionCancelRequested.publishAfterCommit();
     }
 
     public void chargePoint(ChargePointCommand chargePointCommand) {
-        // 이 메서드는 작가 신청과 무관하므로 그대로 둡니다.
-        PointChargeRequested pointChargeRequested = new PointChargeRequested(
-            this
-        );
+        // "이 사용자에게 이만큼의 포인트를 충전해주세요" 라는 요청 이벤트를 발행합니다.
+        PointChargeRequested pointChargeRequested = new PointChargeRequested(this);
+        pointChargeRequested.setAmount(chargePointCommand.getAmount());
         pointChargeRequested.publishAfterCommit();
     }
 }

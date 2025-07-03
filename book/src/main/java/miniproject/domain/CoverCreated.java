@@ -13,4 +13,5 @@ public class CoverCreated extends AbstractEvent {
     private Long bookId;
     private String prompt;
     private String coverUrl;
+    private Long id;
 }

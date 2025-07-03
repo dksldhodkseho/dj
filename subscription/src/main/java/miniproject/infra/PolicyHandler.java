@@ -42,6 +42,35 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
+네, subscription 서비스의 PolicyHandler.java 코드를 확인했습니다.
+
+제가 이전에 안내해 드린 코드와 기존에 있던 코드가 함께 있어서 어떤 부분을 수정해야 할지 헷갈리시는 것 같습니다. 제가 깔끔하게 정리해 드리겠습니다.
+
+수정 사항 설명
+가장 중요한 수정 사항은, 기존에 있던 wheneverBookViewed_CheckSubscription 메서드를 완전히 삭제하고, 그 자리에 BookViewRequested 이벤트를 수신하는 새로운 wheneverBookViewRequested_CheckSubscription 메서드를 넣는 것입니다.
+
+이전 메서드는 BookViewed라는 다른 이벤트를 수신하고 있었고, 우리의 새 시나리오는 BookViewRequested 이벤트로부터 시작되기 때문입니다.
+
+요청하신 대로, 다른 부분은 그대로 두고 이 부분만 정확하게 수정한 전체 코드를 드리겠습니다.
+
+수정된 subscription 서비스의 PolicyHandler.java 전체 코드
+아래 코드를 그대로 PolicyHandler.java 파일에 복사하여 붙여넣으시면 됩니다.
+
+Java
+
+package miniproject.infra;
+
+import java.util.Optional;
+import javax.transaction.Transactional;
+import miniproject.config.kafka.KafkaProcessor;
+import miniproject.domain.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.stereotype.Service;
+
+@Service
+@Transactional
 public class PolicyHandler {
 
     @Autowired
@@ -51,7 +80,7 @@ public class PolicyHandler {
     public void whatever(@Payload String eventString) {}
 
     /**
-     * [수정 없음] user 서비스에서 구독 요청(SubscriptionRequested) 이벤트가 발생했을 때,
+     * [수정 안 함] user 서비스에서 구독 요청(SubscriptionRequested) 이벤트가 발생했을 때,
      * 실제 구독 정보를 생성합니다. (이전 단계에서 완성)
      */
     @StreamListener(

@@ -12,4 +12,8 @@ public class CoverGenerationRequested extends AbstractEvent {
     private Long bookId;
     private String title;
     private String content;
+
+    public CoverGenerationRequested(){
+        super();
+    }
 }

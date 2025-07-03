@@ -22,4 +22,5 @@ public class BestSellerList {
     private Long writerId;
     private String selectedStatus;
     private Date selectedAt;
+    private Integer rank;
 }

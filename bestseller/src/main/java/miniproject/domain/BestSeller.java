@@ -19,14 +19,13 @@ public class BestSeller {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long bestsellerId;
-
     private String bookId;
-
     private Integer viewCount;
-
     private String selectedStatus;
-
     private Date selectedAt;
+    private String title;
+    private Integer rank;
+
 
     public static BestSellerRepository repository() {
         BestSellerRepository bestSellerRepository = BestsellerApplication.applicationContext.getBean(
@@ -105,6 +104,13 @@ public class BestSeller {
          });
         */
 
+    }
+
+    @PostPersist
+    public void onPostPersist() {
+        // 이 엔티티가 저장될 때마다 'BestsellerSelected' 이벤트를 발행합니다.
+        BestsellerSelected bestsellerSelected = new BestsellerSelected(this);
+        bestsellerSelected.publishAfterCommit();
     }
     //>>> Clean Arch / Port Method
 

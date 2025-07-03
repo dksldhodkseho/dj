@@ -9,5 +9,7 @@ public class BookCoverCreateCommand {
 
     private Long requestId;
     private Long bookId;
+    private String title;
+    private String content;
     private String prompt;
 }
