@@ -129,5 +129,37 @@ public class UserController {
         userRepository.save(user);
         return user;
     }
+
+     /**
+     * 일반 사용자 회원가입 API
+     */
+    @PostMapping("/register")
+    public ResponseEntity<User> registerUser(@RequestBody RegisterCommand command) {
+        User savedUser = userService.registerUser(command);
+        return ResponseEntity.ok(savedUser);
+    }
+
+    /**
+     * [추가] 로그인 API
+     * @param command 로그인 정보 (email, password)
+     * @return 성공 시 JWT가 담긴 응답
+     */
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginCommand command) {
+        // 1. UserService의 login 메서드를 호출하여 JWT를 받아옵니다.
+        String token = userService.login(command);
+
+        // 2. JWT를 JSON 형태({"token": "..."})로 감싸서 반환합니다.
+        return ResponseEntity.ok(Collections.singletonMap("token", token));
+    }
+
+    /**
+     * [추가] 로그인 실패 등 IllegalArgumentException 처리
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    }
+
 }
 //>>> Clean Arch / Inbound Adaptor

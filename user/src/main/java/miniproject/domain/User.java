@@ -18,13 +18,9 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long userId;
-
     private String email;
-
     private String nickname;
-
     private String passwordHash;
-
     private Boolean writerRequested;
     
     // --- [수정 1] role 필드 추가 ---
@@ -100,5 +96,9 @@ public class User {
         PointChargeRequested pointChargeRequested = new PointChargeRequested(this);
         pointChargeRequested.setAmount(chargePointCommand.getAmount());
         pointChargeRequested.publishAfterCommit();
+    }
+
+    public boolean checkPassword(String rawPassword, PasswordEncoder passwordEncoder) {
+        return passwordEncoder.matches(rawPassword, this.passwordHash);
     }
 }
