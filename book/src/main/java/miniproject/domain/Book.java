@@ -27,6 +27,7 @@ public class Book {
     private Long writerId;
     private String coverUrl;
     private String status;
+    private Integer viewCount;
 
     public static BookRepository repository() {
         BookRepository bookRepository = BookApplication.applicationContext.getBean(
@@ -76,9 +77,11 @@ public class Book {
     }
     // --- 로직 추가 끝 ---
 
-    public void viewBook(ViewBookCommand viewBookCommand) {
-        BookViewed bookViewed = new BookViewed(this);
-        bookViewed.publishAfterCommit();
+    public void viewBook(ViewBookCommand command) {
+        // "이 사용자가 이 책을 보려 합니다. 확인해주세요." 라는 요청 이벤트를 발행
+        BookViewRequested bookViewRequested = new BookViewRequested(this);
+        bookViewRequested.setUserId(command.getUserId());
+        bookViewRequested.publishAfterCommit();
     }
 
     public void selectBookCover(SelectBookCoverCommand selectBookCoverCommand) {
@@ -117,6 +120,18 @@ public class Book {
 
     public static void coverCandidatesReady(CoverCreated coverCreated) {
         // 이 부분은 다른 기능 구현 시 수정합니다.
+    }
+
+     public void incrementViewCount() {
+        if (this.viewCount == null) {
+            this.viewCount = 0;
+        }
+        this.viewCount++; // 조회수 1 증가
+
+        // "도서 조회가 완료되었다"는 최종 이벤트를 발행합니다.
+        // 이 이벤트는 ViewHandler가 받아 CQRS 뷰를 업데이트하는 데 사용됩니다.
+        BookViewed bookViewed = new BookViewed(this);
+        bookViewed.publishAfterCommit();
     }
 }
 //>>> DDD / Aggregate Root

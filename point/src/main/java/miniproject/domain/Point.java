@@ -30,13 +30,30 @@ public class Point {
     }
 
     //<<< Clean Arch / Port Method
+    /**
+     * 포인트 차감 비즈니스 로직
+     * @param command 포인트 차감에 필요한 정보
+     */
     public void deductPoint(DeductPointCommand deductPointCommand) {
-        //implement business logic here:
+        // [1] 비즈니스 규칙: 보유 포인트가 차감할 포인트보다 적은지 확인
+        if (this.getAmount() < command.getAmount()) {
+            
+            // [2-1] 실패 경로: PointDeductFailed (포인트 차감 실패) 이벤트 발행
+            PointDeductFailed pointDeductFailed = new PointDeductFailed(this);
+            pointDeductFailed.setBookId(command.getBookId()); // bookId와 amount를 실패 이벤트에 담아 전달
+            pointDeductFailed.setAmount(command.getAmount());
+            pointDeductFailed.publishAfterCommit();
 
-        PointDeducted pointDeducted = new PointDeducted(this);
-        pointDeducted.publishAfterCommit();
-        PointDeductFailed pointDeductFailed = new PointDeductFailed(this);
-        pointDeductFailed.publishAfterCommit();
+        } else {
+            // [2-2] 성공 경로: 포인트 차감 및 PointDeducted (포인트 차감 성공) 이벤트 발행
+            this.setAmount(this.getAmount() - command.getAmount());
+
+            PointDeducted pointDeducted = new PointDeducted(this);
+            pointDeducted.setBookId(command.getBookId());
+            pointDeducted.setAmount(command.getAmount());
+            pointDeducted.publishAfterCommit();
+        }
+    }
     }
 
     //>>> Clean Arch / Port Method

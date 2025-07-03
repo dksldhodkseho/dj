@@ -11,6 +11,7 @@ import miniproject.infra.AbstractEvent;
 @ToString
 public class BookAccessGranted extends AbstractEvent {
 
+    private Long id; // 이 이벤트 자체의 ID
     private Long userId;
     private String bookId;
 

@@ -9,4 +9,5 @@ public class ViewBookCommand {
 
     private Long bookId;
     private Long writerId;
+    private Long userId;
 }
