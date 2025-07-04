@@ -2,6 +2,7 @@
 package miniproject.domain;
 
 import lombok.Data;
+import miniproject.infra.AbstractEvent;
 
 @Data
 public class WriterRegistrationRequested extends AbstractEvent {

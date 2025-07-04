@@ -96,17 +96,14 @@ public class PolicyHandler {
     ) {
         try {
             if (!pointDeductionRequested.validate()) return;
-            System.out.println(
-                "\n\n##### listener DeductPoint : " +
-                pointDeductionRequested.toJson() +
-                "\n\n"
-            );
-
+            
+            // 이벤트에서 받은 정보를 Command 객체로 변환
             DeductPointCommand command = new DeductPointCommand();
             command.setUserId(pointDeductionRequested.getUserId());
             command.setBookId(pointDeductionRequested.getBookId());
             command.setAmount(pointDeductionRequested.getAmount());
 
+            // userId로 포인트 정보를 찾아 포인트 차감 로직(deductPoint)을 실행
             pointRepository
                 .findByUserId(command.getUserId())
                 .ifPresent(point -> {

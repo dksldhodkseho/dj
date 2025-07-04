@@ -19,6 +19,7 @@ public class PolicyHandler {
 
     @Autowired
     BestSellerRepository bestSellerRepository;
+    BookViewCountRepository bookViewCountRepository;
 
     @StreamListener(KafkaProcessor.INPUT)
     public void whatever(@Payload String eventString) {}
@@ -64,7 +65,7 @@ public class PolicyHandler {
             .orElseGet(() -> {
                 BookViewCount newBook = new BookViewCount();
                 newBook.setBookId(bookViewed.getBookId());
-                newBook.setTitle(bookViewed.getTitle()); // 이벤트에 title이 있다고 가정
+                //newBook.setTitle(bookViewed.getTitle()); // 이벤트에 title이 있다고 가정
                 newBook.setViewCount(0L);
                 return newBook;
             });

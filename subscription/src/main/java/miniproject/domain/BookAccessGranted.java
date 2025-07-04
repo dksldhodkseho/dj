@@ -13,7 +13,7 @@ public class BookAccessGranted extends AbstractEvent {
 
     private Long id; // 이 이벤트 자체의 ID
     private Long userId;
-    private String bookId;
+    private Long bookId;
 
     public BookAccessGranted(Subscription aggregate) {
         super(aggregate);

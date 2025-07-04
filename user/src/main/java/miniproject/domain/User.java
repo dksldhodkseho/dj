@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.persistence.*;
 import lombok.Data;
 import miniproject.UserApplication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Table(name = "User_table")
@@ -38,17 +39,13 @@ public class User {
         return userRepository;
     }
 
-    public void register(RegisterCommand registerCommand) {
-        // 이 메서드는 작가 신청과 무관하므로 그대로 둡니다.
-        Registered registered = new Registered(this);
-        registered.publishAfterCommit();
-        this.setEmail(registerCommand.getEmail());
-        this.setNickname(registerCommand.getNickname());
-        this.setPasswordHash(passwordEncoder.encode(registerCommand.getPassword())); // 비밀번호 암호화
-
-        // *** 여기에 역할(Role) 초기값 설정 로직 추가 ***
-        this.setRole("USER"); 
-
+    public void register(RegisterCommand command, PasswordEncoder passwordEncoder) {
+        this.setEmail(command.getEmail());
+        this.setNickname(command.getNickname());
+        this.setPasswordHash(passwordEncoder.encode(command.getPassword()));
+        this.setRole("USER");
+        
+        // 여기서 직접 이벤트를 발행합니다.
         Registered registered = new Registered(this);
         registered.publishAfterCommit();
     }
@@ -94,11 +91,19 @@ public class User {
     public void chargePoint(ChargePointCommand chargePointCommand) {
         // "이 사용자에게 이만큼의 포인트를 충전해주세요" 라는 요청 이벤트를 발행합니다.
         PointChargeRequested pointChargeRequested = new PointChargeRequested(this);
-        pointChargeRequested.setAmount(chargePointCommand.getAmount());
+        pointChargeRequested.setAmount(String.valueOf(chargePointCommand.getAmount()));
         pointChargeRequested.publishAfterCommit();
     }
 
     public boolean checkPassword(String rawPassword, PasswordEncoder passwordEncoder) {
         return passwordEncoder.matches(rawPassword, this.passwordHash);
+    }
+
+    @PostPersist
+    public void onPostPersist() {
+        // [수정] register 메서드에서 직접 이벤트를 발행하므로,
+        // 중복을 피하기 위해 onPostPersist의 이벤트 발행 로직은 비워두거나 삭제합니다.
+        // Registered registered = new Registered(this);
+        // registered.publishAfterCommit();
     }
 }

@@ -21,6 +21,7 @@ public class BestsellerSelected extends AbstractEvent {
     private String title;
     private String coverUrl;
     private Long writerId;
+    private Integer rank;
 
     public BestsellerSelected(BestSeller aggregate) {
         super(aggregate);

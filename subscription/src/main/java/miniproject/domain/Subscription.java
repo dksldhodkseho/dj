@@ -146,11 +146,11 @@ public class Subscription {
 
     }
 
-     @PostPersist
+    @PostPersist
     public void onPostPersist() {
-        // 구독이 생성될 때 SubscriptionCreated 이벤트를 발행할 수 있습니다.
-        SubscriptionCreated subscriptionCreated = new SubscriptionCreated(this);
-        subscriptionCreated.publishAfterCommit();
+        // [수정] 이벤트 이름을 SubscriptionRegistered 로 변경합니다.
+        SubscriptionRegistered subscriptionRegistered = new SubscriptionRegistered(this);
+        subscriptionRegistered.publishAfterCommit();
     }
 
     // --- [추가] 구독을 취소하는 비즈니스 로직 ---

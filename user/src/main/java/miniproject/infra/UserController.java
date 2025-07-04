@@ -9,16 +9,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.Map;
+import org.springframework.http.ResponseEntity;
+import java.util.Collections;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 //<<< Clean Arch / Inbound Adaptor
 
 @RestController
-// @RequestMapping(value="/users")
+@RequestMapping(value="/users")
 @Transactional
 public class UserController {
 
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    UserService userService;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @RequestMapping(
         value = "/users/{id}/register",
@@ -36,7 +45,7 @@ public class UserController {
 
         optionalUser.orElseThrow(() -> new Exception("No Entity Found"));
         User user = optionalUser.get();
-        user.register(registerCommand);
+        user.register(registerCommand, passwordEncoder);
 
         userRepository.save(user);
         return user;
@@ -130,36 +139,40 @@ public class UserController {
         return user;
     }
 
-     /**
-     * 일반 사용자 회원가입 API
+    /**
+     * 회원가입 API
      */
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody RegisterCommand command) {
+    public ResponseEntity<User> registerUser(@RequestBody RegisterCommand command)
+        throws Exception {
+        // [수정] Controller는 Service의 메서드를 호출해야 합니다.
         User savedUser = userService.registerUser(command);
         return ResponseEntity.ok(savedUser);
     }
 
     /**
-     * [추가] 로그인 API
-     * @param command 로그인 정보 (email, password)
-     * @return 성공 시 JWT가 담긴 응답
+     * 로그인 API
      */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginCommand command) {
-        // 1. UserService의 login 메서드를 호출하여 JWT를 받아옵니다.
+    public ResponseEntity<Map<String, String>> login(
+        @RequestBody LoginCommand command
+    )
+        throws Exception {
         String token = userService.login(command);
-
-        // 2. JWT를 JSON 형태({"token": "..."})로 감싸서 반환합니다.
         return ResponseEntity.ok(Collections.singletonMap("token", token));
     }
 
     /**
-     * [추가] 로그인 실패 등 IllegalArgumentException 처리
+     * 예외 처리 핸들러
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    public ResponseEntity<String> handleIllegalArgumentException(
+        IllegalArgumentException e
+    ) {
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(e.getMessage());
     }
-
 }
+
 //>>> Clean Arch / Inbound Adaptor

@@ -10,6 +10,7 @@ import miniproject.infra.AbstractEvent;
 public class PubApproved extends AbstractEvent {
 
     private Long writerId;
+    private Long bookId;
     private String approvalStatus;
     private String publishStatus;
 }

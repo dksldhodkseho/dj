@@ -21,21 +21,21 @@ public class BestSellerListViewHandler {
      * 이 메서드는 스케줄링 작업이 끝난 후에만 호출됩니다.
      */
     @StreamListener(
-        value = KafkaProcessor.INPUT,
-        condition = "headers['type']=='BestsellerSelected'"
+    value = KafkaProcessor.INPUT,
+    condition = "headers['type']=='BestsellerSelected'"
     )
     public void whenBestsellerSelected_then_CREATE_1(
         @Payload BestsellerSelected bestsellerSelected
     ) {
         try {
             if (!bestsellerSelected.validate()) return;
-
-            // view 객체 생성
+            
             BestSellerList bestSellerList = new BestSellerList();
             
-            // view 객체에 이벤트의 Value를 set 함
-            // bookId 타입을 Long으로 통일했다고 가정하고 Long.valueOf() 제거
-            bestSellerList.setBookId(bestsellerSelected.getBookId());
+            // --- [수정] String 타입을 Long으로 변환 ---
+            bestSellerList.setBookId(Long.valueOf(bestsellerSelected.getBookId()));
+            // ------------------------------------
+
             bestSellerList.setTitle(bestsellerSelected.getTitle());
             bestSellerList.setCoverUrl(bestsellerSelected.getCoverUrl());
             bestSellerList.setViewCount(bestsellerSelected.getViewCount());
@@ -44,9 +44,11 @@ public class BestSellerListViewHandler {
                 bestsellerSelected.getSelectedStatus()
             );
             bestSellerList.setSelectedAt(bestsellerSelected.getSelectedAt());
-            bestSellerList.setRank(bestsellerSelected.getRank()); // 랭킹 정보 추가
+
+            // --- [수정] getRank() 오류 해결을 위해 이벤트 객체에서 rank 값을 가져오도록 함 ---
+            bestSellerList.setRank(bestsellerSelected.getRank());
+            // -------------------------------------------------------------
             
-            // view 레파지토리에 save
             bestSellerListRepository.save(bestSellerList);
         } catch (Exception e) {
             e.printStackTrace();

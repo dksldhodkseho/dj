@@ -10,4 +10,5 @@ public class RegisterCommand {
     private Long userId;
     private String email;
     private String nickname;
+    private String password;
 }

@@ -1,6 +1,8 @@
 package miniproject.domain;
 
 import miniproject.OpenaiApplication;
+import org.springframework.beans.factory.annotation.Autowired; // <-- [수정] Autowired import 추가
+import org.springframework.core.env.Environment;
 import javax.persistence.*;
 import java.util.List;
 import lombok.Data;
@@ -9,6 +11,9 @@ import java.time.LocalDate;
 import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
+import java.util.HashMap; // <-- [수정] HashMap import 추가
+import java.util.Map;     
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Entity
 @Table(name = "OpenAi_table")

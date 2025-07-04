@@ -8,5 +8,6 @@ import lombok.Data;
 public class DeductPointCommand {
 
     private Long userId;
+    private Long bookId;
     private Integer amount;
 }

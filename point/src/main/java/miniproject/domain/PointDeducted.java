@@ -13,8 +13,10 @@ import miniproject.infra.AbstractEvent;
 @Setter
 public class PointDeducted extends AbstractEvent {
 
+    private Long id;
     private Long userId;
     private Integer amount;
+    private Long bookId;
 
     public PointDeducted(Point aggregate) {
         super(aggregate);

@@ -11,8 +11,10 @@ import miniproject.infra.AbstractEvent;
 @ToString
 public class PointDeductFailed extends AbstractEvent {
 
+    private Long id;
     private Long userId;
     private Integer amount;
+    private Long bookId;
 
     public PointDeductFailed(Point aggregate) {
         super(aggregate);
